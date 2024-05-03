@@ -1,0 +1,769 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2345678901234567890123456789012345678901234567890123456789012345678901234567890
+%        1         2         3         4         5         6         7         8
+
+\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out
+                                                          % if you need a4paper
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4
+                                                          % paper
+
+\IEEEoverridecommandlockouts                              % This command is only
+                                                          % needed if you want to
+                                                          % use the \thanks command
+\overrideIEEEmargins
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+
+
+% The following packages can be found on http:\\www.ctan.org
+%\usepackage{graphics} % for pdf, bitmapped graphics files
+%\usepackage{epsfig} % for postscript graphics files
+% \usepackage{mathptmx} % assumes new font selection scheme installed
+%\usepackage{times} % assumes new font selection scheme installed
+%\usepackage{amsmath} % assumes amsmath package installed
+%\usepackage{amssymb}  % assumes amsmath package installed
+
+%\usepackage{comment}
+% \usepackage{commath}
+%for \absolute "\abs"
+
+\usepackage{mathtools}
+\usepackage{gensymb}
+\usepackage[export]{adjustbox}
+\usepackage{color}
+\usepackage{graphics} % for pdf, bitmapped graphics files
+\usepackage{epsfig} % for postscript graphics files
+% \usepackage{mathptmx} % assumes new font selection scheme installed
+\usepackage{times} % assumes new font selection scheme installed
+\usepackage{amsmath} % assumes amsmath package installed
+\usepackage{amssymb}  % assumes amsmath package installed
+\usepackage{leftidx}
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+\newtheorem{assum}{Assumption}
+\usepackage{amsmath}
+\newtheorem{property}{Property}
+\newtheorem{observation}{Observation}
+\newtheorem{mydef}{Definition}
+% \usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage{siunitx}
+\usepackage{cite}[noadjust]
+\usepackage{nomencl}
+\usepackage{siunitx}
+\makenomenclature
+
+\DeclareMathOperator{\diag}{diag}
+\newcommand{\RomanNumeralCaps}[1]
+    {\MakeUppercase{\romannumeral #1}}
+
+\usepackage{algorithm,algorithmic}
+\usepackage{tablefootnote}
+
+\title{\LARGE \bf
+Impedance Control of Euler-Lagrange Systems with Unknown Dynamics
+}
+
+
+
+\author{---------------% <-this % stops a space
+% \thanks{*This work was not supported by any organization}% <-this % stops a space
+ \thanks{ 
+       {\tt\small }}
+}
+
+
+\begin{document}
+
+
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+\setlength{\belowcaptionskip}{-10pt} 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+%In this paper a distributed adaptive control framework is proposed for the aerial manipulator system for pick and place task. The controller uses the coupled dynamic of UAV-Manipulator which is highly non-linear and complex. The proposed design did not require any a priori knowledge of structure  and bound of uncertainty.
+
+\end{abstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{INTRODUCTION}
+
+.
+.
+.
+.
+
+% The rest of the paper is organised as follows: Sect. \RomanNumeralCaps{2} 
+% describes the quadrotor dynamics and the control problem;
+% Sects. \RomanNumeralCaps{3}  and \RomanNumeralCaps{4} detail the proposed control framework and
+% its stability analysis respectively; Sect. \RomanNumeralCaps{5} provides comparative simulation results while Sect. \RomanNumeralCaps{6} provides concluding
+% remarks.
+
+% The following notations are used in this paper: $\lambda_{min}(\cdot)$ and $||\cdot||$ denote he minimum eigenvalue and Euclidean norm, and pseudo inverse of of $(\cdot)$, respectively. $I$ denotes identity matrix with appropriate dimension.
+
+\section{DESIRED DYNAMICS AND PROBLEM FORMULATION}
+
+
+In various robot-environment interaction scenarios we desire the ability to have adaptable interactions with environments that are not completely known or predictable.
+To achieve this simultaneous force-motion control in task space we often desire to control the way the robot interacts with the environment, or essentially we try to control the dynamics of the system.
+
+The simple second order dynamics, similar to the standard spring-mass-damper, are well studied and understood, and hence a very popular choice of dynamics to be imposed on the system.
+
+\subsection{Conventional UAM Model and Dynamics}
+
+We have considered consider an generalized aerial-manipulator system with a $n$ degrees-of-freedom (DoFs) manipulator system as in Fig. \ref{robot_model}. For this system, let the position $p$ and orientation $q$ (in Euler angles) of the quadrotor be defined as $p \triangleq \begin{bmatrix}
+	x & y & z
+	\end{bmatrix}^T \in \mathbb{R}^{3}$ and  ${q} \triangleq \begin{bmatrix}
+	    \phi & \theta & \psi
+	\end{bmatrix}^T \in \mathbb{R}^{3}$ and we define ${\alpha} \triangleq \begin{bmatrix}
+	    \alpha_1 & \alpha_2 & .. & \alpha_n
+	\end{bmatrix}^T \in \mathbb{R}^{n}$ for the $n$-link manipulator system. The Euler-Lagrangian dynamical model for this system can be represented as \cite{arleo2013control}
+ 
+\begin{equation} \label{General_EL_dynamics}
+M(\chi(t))\ddot{\chi}(t) + C(\chi(t), \dot{\chi}(t))\dot{\chi}(t) + g(\chi(t)) + d(t) = \tau + \tau_ {ext}   
+\end{equation}
+where $\chi = \begin{bmatrix} p^T & q^T & \alpha^T\end{bmatrix}^T \in \mathbb{R}^{6+n}$ is the generalize state vector; $M\in \mathbb{R}^{(6+n)\times (6+n)}$ represents the
+inertia matrix; $C\in \mathbb{R}^{(6+n)\times (6+n)}$ is the coriolis and centrifugal matrix; $g\in \mathbb{R}^{6+n}$ is the
+vector of gravity forces; $d\in \mathbb{R}^{6+n}$ is the bounded external disturbance; $\tau\in \mathbb{R}^{6+n}$ is the control input vector and $\tau_ {ext} \in \mathbb{R}^{6+n}$ is the torque due to external forces acting on the end-effector. These dynamics terms can be split as:
+\begin{subequations}\label{split_2}
+\begin{align}
+&M = \begin{bmatrix}
+    M_{pp} & M_{pq} & M_{p\alpha} \\
+    M_{pq}^T & M_{qq} & M_{q\alpha} \\
+    M_{p\alpha}^T & M_{q\alpha}^T & M_{\alpha \alpha}
+    \end{bmatrix},~\begin{matrix}
+M_{pp}, M_{qq}, M_{pq} \in \mathbb{R}^{3\times3}\\ 
+M_{p\alpha},M_{q\alpha} \in \mathbb{R}^{3 \times n}\\ 
+M_{\alpha \alpha} \in \mathbb{R}^{n \times n}
+\end{matrix}\\
+%\end{equation}
+%with $M_{pp}, M_{qq}, M_{pq} \in \mathbb{R}^{3\times3}$, $M_{p\alpha},M_{q\alpha} \in \mathbb{R}^{3\times2}$ and $M_{\alpha \alpha} \in \mathbb{R}^{2\times2}$ and % Similarly, matrix C and vector g in (\ref{EL_dynamics}) can be expressed as
+&C = \begin{bmatrix}
+    C_p \\
+    C_q \\
+    C_\alpha
+    \end{bmatrix}, ~\begin{matrix} C_p , C_q \in \mathbb{R}^{3 \times (6+n)} \\C_\alpha \in \mathbb{R}^{n \times (6+n)}  \end{matrix}\\
+&g = \begin{bmatrix}
+    g_p \\
+    g_q \\
+    g_\alpha
+    \end{bmatrix},
+    d = \begin{bmatrix}
+    d_p \\
+    d_q \\
+    d_\alpha
+    \end{bmatrix}, ~\begin{matrix} g_p, g_q,d_p,d_q \in \mathbb{R}^{3}\\ g_\alpha, d_\alpha \in \mathbb{R}^{n}\end{matrix}\\
+& \tau = \begin{bmatrix}
+    \tau_p \\
+    \tau_q \\
+    \tau_\alpha
+    \end{bmatrix}, ~\begin{matrix} \tau_p, \tau_q \in \mathbb{R}^{3}\\ \tau_\alpha \in \mathbb{R}^{n}\end{matrix}.\\
+& \tau_{ext} = \begin{bmatrix}
+    0 \\
+    0 \\
+    J_{\alpha}^T F_{ext}\\
+    \end{bmatrix}, ~\begin{matrix} F_{ext} \in \mathbb{R}^{3}\\ J_\alpha \in \mathbb{R}^{n \times 3}\end{matrix}.
+\end{align}
+\end{subequations}
+%with and $g_p, g_q,d_p,d_q, \tau_p, \tau_q \in \mathbb{R}^{3}$, $g_\alpha, d_\alpha, \tau_\alpha \in \mathbb{R}^{2}$.
+%The gravity vector $g(\chi)$ and disturbance vector $d$ is defined as $g(\chi) \triangleq \begin{bmatrix}
+%	    g^T_p & g^T_q & g^T_\alpha
+%	\end{bmatrix}^T \in \mathbb{R}^{8}$ and $d \triangleq \begin{bmatrix}
+%	    d^T_p & d^T_q & d^T_\alpha
+%	\end{bmatrix}^T \in \mathbb{R}^{8}$ where ${g_p} \in\mathbb{R}^{3}$, ${g_q} \in\mathbb{R}^{3}$, ${g_\alpha} \in\mathbb{R}^{2}$ and ${d_p} \in\mathbb{R}^{3}$, ${d_q} \in\mathbb{R}^{3}$, ${d_\alpha} \in\mathbb{R}^{2}$.
+%The control input is represented as $\tau \triangleq \begin{bmatrix} \tau_p^T & \tau_q^T & \tau^T_\alpha \end{bmatrix}^T \in \mathbb{R}^{8}$ where 
+Where $J_{\alpha}$ is the analytic jacobian for the manipulator.
+
+Here,    $\tau_{\alpha} \triangleq
+	\begin{bmatrix}
+	\tau_{\alpha_1} & \tau_{\alpha_2}  & .. & \tau_{\alpha_n}
+	\end{bmatrix}^T$ is used for the control input for the manipulator; $\tau_q  \triangleq 
+	\begin{bmatrix}
+	u_2(t) & u_3(t) & u_4(t)
+	\end{bmatrix}^T$ is used as the control inputs for roll, pitch and yaw of the quadrotor; ${\tau_{p}} = {R^W_B U}$ is the generalized control input for quadrotor position in Earth-fixed frame, such that ${U}(t)\triangleq
+	\begin{bmatrix}
+	0 & 0 & u_1(t)
+	\end{bmatrix}^T\in \mathbb{R}^3$ being the force vector in body-fixed frame and ${R_B^W} \in\mathbb{R}^{3\times3}$ being the $Z-Y-X$ Euler angle rotation matrix describing the rotation from the body-fixed coordinate frame to the Earth-fixed frame, given by
+	\begin{align}
+	{R_B^W} =
+	\begin{bmatrix}
+	c_{\psi}c_{\theta} & c_{\psi}s_{\theta}s_{\phi} - s_{\psi}c_{\phi} & c_{\psi}s_{\theta}c_{\phi} + s_{\psi}s_{\phi} \\
+	s_{\psi}c_{\theta} & s_{\psi}s_{\theta}s_{\phi} + c_{\psi}c_{\phi} & s_{\psi}s_{\theta}c_{\phi} - c_{\psi}s_{\phi} \\
+	-s_{\theta} & s_{\phi}c_{\theta} & c_{\theta}c_{\phi}
+	\end{bmatrix}, \label{rot_matrix}
+	\end{align}
+	where $c_{(\cdot)} , s_{(\cdot)}$ and denote $\cos{(\cdot)} , \sin{(\cdot)}$ respectively.
+
+ \subsection{Distributed UAM Dynamics}
+
+For ease of control design and analysis and using \eqref{split_2}, the UAM dynamics \eqref{General_EL_dynamics} can be re-written as
+\begin{subequations} \label{dynamics}
+	\begin{align}
+	M_{pp}\ddot{p} &+ M_{pq}\ddot{q} + M_{p\alpha}\ddot{\alpha} + C_{p}\dot{\chi} + g_{p} + d_{p} &= \tau_{p} \label{pos}\\
+	M_{pq}^T\ddot{p} &+ M_{qq}\ddot{q} + M_{q\alpha}\ddot{\alpha} + C_{q}\dot{\chi} + g_{q} + d_{q} &= \tau_{q} \label{att} \\
+	M_{p\alpha}^T\ddot{p} &+ M_{q\alpha}^T\ddot{q} + M_{\alpha\alpha}\ddot{\alpha} + C_{\alpha} \dot{\chi} + g_{\alpha} + d_{\alpha} &= \tau_{\alpha} + \tau_{\alpha ext} \label{man}\\
+	\tau_{p} &= R^W_B U \label{conv}\\
+	\tau_{\alpha ext} &= J_{\alpha}^T F_{ext}
+	\end{align}
+\end{subequations}
+
+
+\textcolor{red}{Need to format the equation numbers into this.}
+
+where (\ref{pos}), (\ref{att}) and (\ref{man}) represent the quadrotor position dynamics, quadrotor attitude dynamics and manipulator dynamics along with their interactions, respectively. 
+
+The following standard system properties hold via Euler-Lagrange mechanics \cite{spong2008robot}:
+\begin{property} \label{prop_1}
+The matrix {$M_(\chi)$} is uniformly positive definite and $ \exists \underline{m},\overline{m} \in \mathbb{R}^{+}$ such that $0 < \underline{m} I \leq M(\chi) \leq \overline{m} I$. 
+\end{property}
+
+\begin{property} \label{prop_3}
+$\exists \bar{c}, \bar{g}, \bar{d} \in\mathbb{R}^{+}$ such that $||C (\chi)|| \leq \bar{c}||\dot{\chi}||$, $||g (\chi)|| \leq \bar{g}$ and $||d(t)|| \leq \bar{d}$. % where $\chi$ is defined in eq (\ref{EL_dynamics}).
+\end{property}
+
+The following assumption highlights the available knowledge of various system parameters for the control design:
+
+\begin{assum}[Uncertainty] \label{assum_1}
+The system dynamics terms $M, C, g, d$
+and their bounds $\overline{m}, \underline{m}, \bar{c}, \bar{g}, \bar{d}$ defined in Properties 1-2 are unknown for control design.
+\end{assum}
+
+\begin{assum} \label{assum_2}
+The desired trajectories $\chi_d = \begin{bmatrix} p_d^T & q_d^T & \alpha_d^T\end{bmatrix}^T$ and their time-derivatives $\dot{\chi}_d, \ddot{\chi}_d$ are designed to
+be sufficiently bounded. Furthermore, $\chi, \dot{\chi}, \ddot{\chi}$ are available for feedback.
+\end{assum}
+
+
+\textit{Control Problem} Under Properties 1-2 and Assumptions 1-2, to design a distributed adaptive control framework for the aerial manipulator system (\ref{dynamics}), \textcolor{red}{with an important objective being to impose desired impedance dynamics on the manipulator for the attenuation of forces arising from environmental interactions.}
+
+The following section solves the control problem.
+
+
+% \subsection{System Dynamics}
+
+% Considering a manipulator with $n$ degrees-of-freedom (DoFs). For this system, let the position in cartesian space $r$ and the state in joint space $q$ be defined as $r \triangleq \begin{bmatrix}
+% 	x & y & z
+% 	\end{bmatrix}^T \in \mathbb{R}^{3}$ and  ${q} \triangleq  \begin{bmatrix}
+% 	    {q}_1 & {q}_2 & .. & {q}_n
+% 	\end{bmatrix}^T \in \mathbb{R}^{n}$ for the $n$-link manipulator system. The Euler-Lagrangian dynamical model for this system in task space can be represented as 
+%  % \cite{arleo2013control}
+ 
+% \begin{equation} \label{EL_dynamics}
+% M(\chi(t))\ddot{\chi}(t) + C(\chi(t), \dot{\chi}(t))\dot{\chi}(t) + g(\chi(t)) + d(t) = \tau + \tau_ {ext}   
+% \end{equation}
+
+% $M$ represents the inertia matrix; $C$ is the coriolis and centrifugal matrix; $g$ is the vector of gravity forces; $F_ext$ is the external force measured on the tool tip and $F_c =\quad (J^T)^{-1} \tau$ is the control force. 
+
+\section{Controller Design and Analysis}
+
+The proposed control framework consists of designing (i)  quadrotor position control, (ii) quadrotor attitude control and (iii) the manipulator control as per the dynamics (\ref{dynamics}). Note that such design process is simultaneous in nature and not decoupled.  
+%A task for the aerial-manipulator system modeled in the previous section is usually specified in terms of a desired trajectory $\chi_d = \begin{bmatrix} p_d^T & q_d^T & \theta_d^T\end{bmatrix}^T \in \mathbb{R}^{8}$ where $p_d \in \mathbb{R}^3$, $q_d \in \mathbb{R}^3$ and $\alpha_d \in \mathbb{R}^2$
+Defining tracking error as  
+\begin{align} 
+  e \triangleq \chi(t) - \chi_d(t),~\xi(t) \triangleq \begin{bmatrix}
+	e(t) & \dot{e}(t)
+	\end{bmatrix},
+\end{align}  \label{err}
+we elaborate the proposed control designs in the following subsections.
+	
+\subsection{Quadrotor Position Control}
+% For control design purpose, the quadrotor position sub-dynamics (\ref{dynamics}a) is rearranged as
+% \begin{equation} \label{dynamics_p}
+% \bar{M}_{pp}\ddot{p} - E_{p} = \tau_{p}    
+% \end{equation}
+% where $\bar{M}_{pp}$ is a user-defined constant positive definite matrix and $E_{p} \triangleq -\{(M_{pp} - \bar{M}_{pp})\ddot{p} + M_{pq}\ddot{q} + M_{p\alpha}\ddot{\alpha} + C_{p}\dot{\chi} + g_{p} + d_{p} \}$. The selection of $\bar{M}_{pp}$ would be discussed later (cf. Remark \ref{mass}).
+% \textcolor{red}{intentionally making $E$ in negative for lyapunov proof}
+
+Taking the quadrotor position tracking error as $e_p(t) \triangleq p(t) - p_d(t)$, let us define an error variable as
+\begin{align}
+     s_p &= \dot{e}_p + \Phi_p e_p \label{eq:s_p}
+ \end{align}
+where $\Phi_{p} \in \mathbb{R}^{3 \times 3}$ is a positive definite gain matrix. Multiplying the time derivative of (\ref{eq:s_p}) by $\bar{M}_{pp}$ and  using (\ref{eq:tau_p}) yields
+\begin{align}
+\bar{M}_{pp} \dot{s}_p &= \bar{M}_{pp}(\ddot{p}- \ddot{p}_d+ \Phi_{p} {\dot{e}_p}) \nonumber \\ 
+&= {\tau_{p}} + {E}_{p} - \bar{M}_{pp}(\ddot{p}_d- \Phi_{p} {\dot{e}_p}), \label{eq:sp_dot}
+\end{align}
+where $\bar{M}_{pp}$ is a user-defined constant positive definite matrix and $E_{p} \triangleq -\{(M_{pp} - \bar{M}_{pp})\ddot{p} + M_{pq}\ddot{q} + M_{p\alpha}\ddot{\alpha} + C_{p}\dot{\chi} + g_{p} + d_{p} \}$. The selection of $\bar{M}_{pp}$ would be discussed later (cf. Remark \ref{mass}).
+
+
+
+
+% Let us define the position tracking error as $e_p(t) \triangleq p(t) - p_d(t)$ and  
+% an error variable $r_{p}$ as
+% \begin{equation} \label{err_variable_p}
+% r_{p} \triangleq B^T_p P_{p} \xi_p    
+% \end{equation}
+% where $\xi_p(t) \triangleq \begin{bmatrix}
+% 	e^T_p(t) & \dot{e}^T_p(t)
+% 	\end{bmatrix}^T$, 
+% 	$B_p \triangleq \begin{bmatrix}
+% 	0 & I
+% 	\end{bmatrix}^T$; $P_{p} > 0$ is the solution to the Lyapunov equation $A^T_{p} P_{p} + P_{p} A_{p} = -Q_{p} $ for some $Q_{p} > 0$ with $A_{p} \triangleq \begin{bmatrix}
+% 	0 & I \\ -\lambda_{p1} & -\lambda_{p2} 
+% 	\end{bmatrix}$. Here, $\lambda_{p1}$ and $\lambda_{p2}$ are two user-defined positive definite gain matrices and their positive definiteness guarantees that $A_{p}$ is Hurwitz.
+
+The control law is proposed as
+\begin{subequations}\label{ct1}
+\begin{align}
+\tau_{p} &= -\Lambda_{p} s_p - \Delta \tau_{p} + \bar{M}_{pp}(\ddot{p}_d- \Phi_{p} {\dot{e}_p}),  \label{tau_p}\\
+\Delta \tau_{p} &= \begin{cases}
+    \rho_{p} \frac{s_{p}}{||s_{p}||}       & ~ \text{if } || s_{p}|| \geq \varpi_p\\
+    \label{del_p}
+    \rho_{p} \frac{s_{p}}{\varpi_p}       & ~ \text{if } || s_{p}|| < \varpi_p\\
+    \end{cases}
+\end{align}
+\end{subequations}
+where $\Lambda_{p}$ is a user-defined positive definite gain matrix and $\varpi_{p} > 0$ is a scalar used to avoid chattering; $\rho_{p}$ tackles system uncertainties, whose design will be discussed later.
+
+
+% Substituting (\ref{tau_p}) into (\ref{dynamics_p}) yields
+% \begin{equation}
+% \ddot{e}_p = -\Lambda_{p} \xi_p - \Delta \tau_{p} + \Upsilon_{p} \label{err1}  
+% \end{equation}
+% where $\Upsilon_{p} \triangleq - \bar{M}_{pp}^{-1} E_p$ is defined as the overall uncertainty. 
+
+% Using system Properties 1-2 and Assumption \ref{assum_2} one can verify
+%  \begin{align}
+% ||\Upsilon_{p}|| &\leq ||\bar{M}_{pp}^{-1}|| (||(M_{pp} - \bar{M}_{pp} )|| ||\ddot{p}|| + || M_{pq}|| ||\ddot{q}|| \nonumber \\ &+ || M_{p\alpha}|| ||\ddot{\alpha}|| + ||C_p|| ||\dot{\chi}|| + ||{g}_p|| + ||{d}_p|| ). \label{cp}
+%  \end{align}
+ 
+Using Property 2 and the relation (\ref{split_2}) we have $||C_{p}|| \leq ||C|| \leq \bar{c}||\dot{\chi}||$, $||g_{p}|| \leq ||g|| \leq \bar{g}$ and $||d_{p}|| \leq ||d|| \leq \bar{d}$. Using these relations, the inequalities $||\ddot{\chi}|| \geq ||\ddot{p}||$, $||\ddot{\chi}|| \geq ||\ddot{q}||$ and $||\ddot{\chi}|| \geq ||\ddot{\alpha}||$, $||\xi|| \geq ||\dot{e}||$, $||\xi|| \geq ||{e}||$ and substituting $\dot{\chi} = \dot{e} + \dot{\chi}_d$ into (\ref{cp}) yields
+\begin{align} 
+||E_{p}|| &\leq K_{p0}^*  +K_{p1}^*||\xi||+ K_{p2}^*||\xi||^2 + K_{p3}^*||\ddot{\chi}||\label{up_bound_p} 
+%&\triangleq \mathbf{Y}^T \mathbf{K_{p}^*}
+\end{align}
+%where $\mathbf{Y} = \begin{bmatrix}
+%1 & ||\xi|| & ||\xi||^2 & ||\ddot{\chi}||
+%\end{bmatrix}^T$ and $\mathbf{K_{p}^*} = \begin{bmatrix}
+%K_{p0}^* & K_{p1}^* & K_{p2}^* & K_{p3}^*
+%\end{bmatrix}$. The scalars $K_{pi}^* \in \mathbb{R}^+, ~i =0,1,2,3$ are unknown and they are defined as
+\begin{align*}
+ K_{p0}^* &= \bar{g} + \bar{d} + \bar{c}||\dot{\chi}_d||^2,\\
+K_{p1}^* &= 2\bar{c}|| \dot{\chi}_d||,~
+K_{p2}^* = \bar{c}, \\
+K_{p3}^* &=  (||(M_{pp} - \bar{M}_{pp} )||+ ||M_{pq}|| + ||M_{p\alpha}||)
+\end{align*}
+are unknown scalars. Based on the upper bound structure in (\ref{up_bound_p}), the gain $\rho_{p}$ in (\ref{del_p}) is designed as
+\begin{align}
+\rho_{p} = \hat{K}_{p0} + \hat{K}_{p1}||\xi|| + \hat{K}_{p2}||\xi||^2 + \hat{K}_{p3}||\ddot{\chi}|| + \zeta_{p} + \gamma_{p} \label{rho_p} 
+\end{align}
+%\nonumber \\
+%&\triangleq \mathbf{Y^T \hat{K}_{p}} + \zeta_p 
+
+where $\hat{K}_{pi}$ are the estimates of $K_{pi}^*$ $i=0,1,2,3$, and $\zeta_{p}$, $\gamma_{p}$ are auxiliary gain used for closed-loop stabilization (cf. Remark \ref{rem_zeta}). The gains $\hat{K}_{pi}$ are adapted via the following laws:
+\begin{subequations}\label{adaptive_law_p}
+\begin{align}
+&\dot{\hat{K}}_{pia} = ||s_{p}||||\xi||^i - \nu_{pia} \hat{K}_{pia}, \dot{\hat{K}}_{pi\bar{a}} = 0,  i = 0,1,2
+ \\
+&\dot{\hat{K}}_{p3a} =  ||s_{p}||||\ddot{\chi}|| - \nu_{p3a} \hat{K}_{p3a}, \dot{\hat{K}}_{p3\bar{a}} = 0\\
+&\dot{\zeta}_{pa} = -(1 + \hat{K}_{p3a}||s_{a}||||\ddot{\chi}||)\zeta_{pa} + \bar{\epsilon}_{pa}, \dot{\zeta}_{p\bar{a}} = 0    \\ \label{zeta1}
+& \dot{\gamma}_{pa} = 0,  \dot{\gamma}_{p\bar{a}} = \left(1+ \frac{\varrho_{p\bar{a}}}{2}\sum \limits_{i=0}^{3} {\hat{K}_{pi\bar{a}}}^2 \right) \gamma_{p\bar{a}} +\epsilon_{p\bar{a}} \\ 
+& \text{with}~ \nu_{pi} > \varrho_{p}/2, i = 0,1,2\\
+&~\hat{K}_{pi} (t_0) > 0, ~\zeta_{p} (t_0)  = \bar{\zeta}_{p} > \bar{\epsilon}_{p}, \gamma_{p} (t_0) = \bar{\gamma}_{p} > \epsilon_{p}
+\end{align}
+\end{subequations}
+where a and $\bar{a} \in \Omega \backslash {a}$ denote the active and inactive subsystems respectively; $\nu_{pia},\bar{\epsilon}_{pa}, \epsilon_{p\bar{a}}  \in\mathbb{R}^{+}$ are user-defined scalars and $\varrho_{p} \triangleq \frac{\min \lbrace \lambda_{\min}(  \Lambda_{{p}} ), \lambda_{\min}( \Phi_{{p}} ) \rbrace}{\max \lbrace \bar{M}_{pp}, 1 \rbrace}$ $\forall  \in \Omega$ and $t_0$ is the initial time and from \ref{} and intial condition \ref{}, it can be verified that $\exists \underline{\zeta}_{p}, \underline{\gamma}_{p} \in \mathbb{R}^{+}$ such that
+\begin{subequations}
+\begin{align}
+&\hat{K}_{pi}(t) \geq 0, ~~ 0 < \underline{\zeta}_{p} \leq \zeta_{p} (t) <  \bar{\zeta}_{p}, \nonumber \\
+\text{and}~~ & 0 < \underline{\gamma}_{p} \leq \gamma_{p} (t) <  \bar{\gamma}_{p} ~~ \forall t \geq t_0.
+\end{align}
+\end{subequations}
+
+
+% \textcolor{red}{Doubt: Role of $\gamma$ and $\varrho_{p}$ }
+
+
+\subsection{Quadrotor Attitude Control}
+%To design the attitude controller, the desired roll ($\phi_d$) and pitch ($\theta_d$) angles are to be generated first. This process involves defining an intermediate coordinate frame as the first step (cf. \cite{mellinger2011minimum}):
+%\begin{subequations}\label{int_co}
+%\begin{align}
+%    z_B &= \frac{\tau_p}{||\tau_p||},~
+ %   y_A = \begin{bmatrix}
+ %   -s_{\psi_d} & c_{\psi_d} & 0
+%\end{bmatrix}^T \\
+%    x_B &= \frac{y_A \times z_B}{||y_A \times z_B||} ,~
+%    y_B = z_B \times x_B
+%\end{align}
+%\end{subequations}
+%where $y_A$ is the $y$-axis of the intermediate coordinate frame and ($x_B, y_B,z_B$) are the ($x,y,z$)-axis of the body-fixed coordinate frame. Given the desired yaw angle $\psi_d (t)$ and using (\ref{int_co}), $\phi_d (t)$ and $\theta_d (t)$ can be determined using the desired body frame axes as described in \cite{mellinger2011minimum}. % (the details are omitted here due to lack of space). 
+
+To achieve the attitude control, the tracking error in orientation/attitude is defined as \cite{mellinger2011minimum}
+\begin{align}
+    e_q &= {((R_d)^T R_B^W - (R_B^W)^T R_d)}^{v}  \\
+    \dot{e}_q & = \dot{q} - R_d^T R_B^W \dot{q}_d
+\end{align}
+where $(.)^v$ represents \textit{vee} map, which converts elements of $SO(3)$ to $\in{\mathbb{R}^3}$ and $R_d$ is the rotation matrix as in (\ref{rot_matrix}) evaluated at ($\phi_d, \theta_d, \psi_d$).
+
+The quadrotor attitude sub-dynamics (\ref{dynamics}b) is rearranged as
+\begin{equation} \label{dynamics_q}
+\bar{M}_{qq}\ddot{q} + E_{q} = \tau_{q}    
+\end{equation}
+where $\bar{M}_{qq}$ is a user-defined constant positive definite matrix (cf. Remark \ref{mass}) and $E_{q} \triangleq (M_{qq} - \bar{M}_{qq})\ddot{q} + M_{pq}^T\ddot{p} + M_{q\alpha}\ddot{\alpha} + C_{q}\dot{\chi} + g_{q} + d_{q}$. %The selection of $\bar{M}_{qq}$ would be discussed later.
+
+For quadrotor attitude tracking error, let us define an error variable as
+\begin{align}
+     s_q &= \dot{e}_q + \Phi_q e_q \label{eq:s_p}
+ \end{align}
+where $\Phi_{q} \in \mathbb{R}^{3 \times 3}$ is a positive definite gain matrix. Multiplying the time derivative of (\ref{eq:s_q}) by $\bar{M}_{qq}$ and  using (\ref{eq:tau_q}) yields
+\begin{align}
+\bar{M}_{qq} \dot{s}_q &= \bar{M}_{qq}(\ddot{q}- \ddot{q}_d+ \Phi_{q} {\dot{e}_q}) \nonumber \\ 
+&= {\tau_{q}}- {E}_{q} - \bar{M}_{qq}(\ddot{q}_d- \Phi_{q} {\dot{e}_q}), \label{eq:sq_dot}
+\end{align}
+
+The control law is proposed as
+\begin{subequations}\label{ct2}
+\begin{align}
+\tau_{q} &= -\Lambda_{q} s_q + \Delta \tau_{q} + \bar{M}_{qq}(\ddot{q}_d- \Phi_{q} {\dot{e}_q}),  \label{tau_q}\\
+\Delta \tau_{q} &= \begin{cases}
+    \rho_{q} \frac{s_{q}}{||s_{q}||}       & ~ \text{if } || s_{q}|| \geq \varpi_q\\
+    \label{del_q}
+    \rho_{q} \frac{s_{q}}{\varpi_q}       & ~ \text{if } || s_{q}|| < \varpi_q\\
+    \end{cases}
+\end{align}
+\end{subequations}
+where $\Lambda_{q}$ is a user-defined positive definite gain matrix and $\varpi_{q} > 0$ is a scalar used to avoid chattering; $\rho_{q}$ tackles system uncertainties, whose design will be discussed later.
+Using Property 2 and the relation (\ref{split_2}) we have $||C_{q}|| \leq ||C|| \leq \bar{c}||\dot{\chi}||$, $||g_{q}|| \leq ||g|| \leq \bar{g}$ and $||d_{q}|| \leq ||d|| \leq \bar{d}$. Using these relations, the inequalities $||\ddot{\chi}|| \geq ||\ddot{p}||$, $||\ddot{\chi}|| \geq ||\ddot{q}||$ and $||\ddot{\chi}|| \geq ||\ddot{\alpha}||$, $||\xi|| \geq ||\dot{e}||$, $||\xi|| \geq ||{e}||$ and substituting $\dot{\chi} = \dot{e} + \dot{\chi}_d$ into (\ref{cp}) yields
+\begin{align} 
+||E_{q}|| &\leq K_{q0}^*  +K_{q1}^*||\xi||+ K_{q2}^*||\xi||^2 + K_{q3}^*||\ddot{\chi}||\label{up_bound_q} 
+%&\triangleq \mathbf{Y}^T \mathbf{K_{p}^*}
+\end{align}
+where
+\begin{align*}
+ K_{q0}^* &= \bar{g} + \bar{d} + \bar{c}||\dot{\chi}_d||^2,\\
+K_{q1}^* &= 2\bar{c}|| \dot{\chi}_d||,~
+K_{q2}^* = \bar{c}, \\
+K_{q3}^* &=  (||(M_{qq} - \bar{M}_{qq} )||+ ||M^T_{pq}|| + ||M_{q\alpha}||)
+\end{align*}
+\textcolor{red}{$K_{p0}^* = K_{q0}^*$}\\
+are unknown scalars. Based on the upper bound structure in (\ref{up_bound_q}), the gain $\rho_{q}$ in (\ref{del_q}) is designed as
+\begin{align}
+\rho_{q} = \hat{K}_{q0} + \hat{K}_{q1}||\xi|| + \hat{K}_{q2}||\xi||^2 + \hat{K}_{q3}||\ddot{\chi}|| + \zeta_{q} + \gamma_{q} \label{rho_q} 
+\end{align}
+
+
+where $\hat{K}_{qi}$ are the estimates of $K_{qi}^*$ $i=0,1,2,3$, and $\zeta_{q}$, $\gamma_{q}$ are auxiliary gain used for closed-loop stabilization (cf. Remark \ref{rem_zeta}). The gains $\hat{K}_{qi}$ are adapted via the following laws:
+\begin{subequations}\label{adaptive_law_q}
+\begin{align}
+&\dot{\hat{K}}_{qia} = ||s_{q}||||\xi||^i - \nu_{qia} \hat{K}_{qia}, \dot{\hat{K}}_{qi\bar{a}} = 0,  i = 0,1,2
+ \\
+&\dot{\hat{K}}_{q3a} =  ||s_{q}||||\ddot{\chi}|| - \nu_{q3a} \hat{K}_{q3a}, \dot{\hat{K}}_{q3\bar{a}} = 0\\
+&\dot{\zeta}_{qa} = -(1 + \hat{K}_{q3a}||s_{q}||||\ddot{\chi}||)\zeta_{qa} + \bar{\epsilon}_{qa}, \dot{\zeta}_{q\bar{a}} = 0    \\ \label{zeta1}
+& \dot{\gamma}_{qa} = 0,  \dot{\gamma}_{q\bar{a}} = \left(1+ \frac{\varrho_{q\bar{a}}}{2}\sum \limits_{i=0}^{3} {\hat{K}_{qi\bar{a}}}^2 \right) \gamma_{q\bar{a}} +\epsilon_{q\bar{a}} \\ 
+& \text{with}~ \nu_{qi} > \varrho_{q}/2, i = 0,1,2\\
+&~\hat{K}_{qi} (t_0) > 0, ~\zeta_{q} (t_0)  = \bar{\zeta}_{q} > \bar{\epsilon}_{q}, \gamma_{q} (t_0) = \bar{\gamma}_{q} > \epsilon_{q}
+\end{align}
+\end{subequations}
+where a and $\bar{a} \in \Omega \backslash {a}$ denote the active and inactive subsystems respectively; $\nu_{qia},\bar{\epsilon}_{qa}, \epsilon_{q\bar{a}}  \in\mathbb{R}^{+}$ are user-defined scalars and $\varrho_{q} \triangleq \frac{\min \lbrace \lambda_{\min}( \Lambda_{{q}} ), \lambda_{\min}( \Phi_{{q}} ) \rbrace}{\max \lbrace \bar{M}_{qq}, 1 \rbrace}$ $\forall  \in \Omega$ and $t_0$ is the initial time and from \ref{} and intial condition \ref{}, it can be verified that $\exists \underline{\zeta}_{q}, \underline{\gamma}_{q} \in \mathbb{R}^{+}$ such that
+\begin{subequations}
+\begin{align}
+&\hat{K}_{qi}(t) \geq 0, ~~ 0 < \underline{\zeta}_{q} \leq \zeta_{q} (t) <  \bar{\zeta}_{q}, \nonumber \\
+\text{and}~~ & 0 < \underline{\gamma}_{q} \leq \gamma_{q} (t) <  \bar{\gamma}_{q} ~~ \forall t \geq t_0.
+\end{align}
+\end{subequations}
+
+
+\subsection{Manipulator Impedance Control}
+For control design purpose, the UAM manipulator sub-dynamics (\ref{dynamics}c) is rearranged as
+\begin{equation} \label{dynamics_q}
+\bar{M}_{\alpha\alpha}\ddot{\alpha} + E_{\alpha} = \tau_{\alpha}   + \tau_{\alpha{ext}}    
+\end{equation}
+where $\bar{M}_{\alpha\alpha}$ is a user-defined constant positive definite matrix and $E_\alpha \triangleq (M_{\alpha\alpha} - \bar{M}_{\alpha\alpha})\ddot{\alpha} + M_{p\alpha}^T\ddot{p} + M_{q\alpha}^T\ddot{q} + C_\alpha\dot{\chi} + g_\alpha + d_\alpha $. The selection of $\bar{M}_{pp}$ would be discussed later (cf. Remark \ref{mass}).
+
+Taking the UAM manipulator tracking error as $e_\alpha(t) \triangleq p(t) - p_\alpha(t)$, let us define an error variable as
+\begin{align}
+     s_\alpha &= \dot{e}_\alpha + \Phi_\alpha e_\alpha \label{eq:s_alpha}
+ \end{align}
+where $\Phi_{\alpha} \in \mathbb{R}^{3 \times 3}$ is a positive definite gain matrix. Multiplying the time derivative of (\ref{eq:s_alpha}) by $\bar{M}_{\alpha\alpha}$ and  using (\ref{eq:tau_alpha}) yields
+\begin{align}
+\bar{M}_{\alpha\alpha} \dot{s}_\alpha &= \bar{M}_{\alpha\alpha}(\ddot{\alpha}- \ddot{\alpha}_d+ \Phi_{\alpha} {\dot{e}_\alpha}) \nonumber \\ 
+&= {\tau_{\alpha}}- {E}_{\alpha} - \bar{M}_{\alpha\alpha}(\ddot{\alpha}_d- \Phi_{\alpha} {\dot{e}_\alpha}), \label{eq:salpha_dot}
+\end{align}
+
+
+The control law is proposed as
+\begin{subequations}\label{ct3}
+\begin{align}
+\tau_{\alpha} &= -\Lambda_{\alpha} s_\alpha + \Delta \tau_{\alpha} + \bar{M}_{\alpha\alpha}(\ddot{\alpha}_d- \Phi_{\alpha} {\dot{e}_\alpha}),  \label{tau_alpha}\\
+\Delta \tau_{\alpha} &= \begin{cases}
+    \rho_{\alpha} \frac{s_{\alpha}}{||s_{\alpha}||}       & ~ \text{if } || s_{\alpha}|| \geq \varpi_\alpha\\
+    \label{del_alpha}
+    \rho_{\alpha} \frac{s_{\alpha}}{\varpi_\alpha}       & ~ \text{if } || s_{\alpha}|| < \varpi_\alpha\\
+    \end{cases}
+\end{align}
+\end{subequations}
+where $\Lambda_{\alpha}$ is a user-defined positive definite gain matrix and $\varpi_{\alpha} > 0$ is a scalar used to avoid chattering; $\rho_{\alpha}$ tackles system uncertainties, whose design will be discussed later.
+
+ 
+Using Property 2 and the relation (\ref{split_2}) we have $||C_{\alpha}|| \leq ||C|| \leq \bar{c}||\dot{\chi}||$, $||g_{\alpha}|| \leq ||g|| \leq \bar{g}$ and $||d_{\alpha}|| \leq ||d|| \leq \bar{d}$. Using these relations, the inequalities $||\ddot{\chi}|| \geq ||\ddot{p}||$, $||\ddot{\chi}|| \geq ||\ddot{q}||$ and $||\ddot{\chi}|| \geq ||\ddot{\alpha}||$, $||\xi|| \geq ||\dot{e}||$, $||\xi|| \geq ||{e}||$ and substituting $\dot{\chi} = \dot{e} + \dot{\chi}_d$ into (\ref{calpha}) yields
+\begin{align} 
+||E_{\alpha}|| &\leq K_{\alpha0}^*  +K_{\alpha1}^*||\xi||+ K_{\alpha2}^*||\xi||^2 + K_{\alpha3}^*||\ddot{\chi}||\label{up_bound_alpha} 
+%&\triangleq \mathbf{Y}^T \mathbf{K_{p}^*}
+\end{align}
+
+\begin{align*}
+ K_{\alpha0}^* &= \bar{g} + \bar{d} + \bar{c}||\dot{\chi}_d||^2,\\
+K_{\alpha1}^* &= 2\bar{c}|| \dot{\chi}_d||,~
+K_{\alpha2}^* = \bar{c}, \\
+K_{\alpha3}^* &=  (||(M_{\alpha\alpha} - \bar{M}_{\alpha\alpha} )||+ ||M^T_{p\alpha}|| + ||M^T_{q\alpha}||)
+\end{align*}
+are unknown scalars. Based on the upper bound structure in (\ref{up_bound_alpha}), the gain $\rho_{\alpha}$ in (\ref{del_alpha}) is designed as
+\begin{align}
+\rho_{\alpha} = \hat{K}_{\alpha0} + \hat{K}_{\alpha1}||\xi|| + \hat{K}_{\alpha2}||\xi||^2 + \hat{K}_{\alpha3}||\ddot{\chi}|| + \zeta_{\alpha} + \gamma_{\alpha} \label{rho_alpha} 
+\end{align}
+%\nonumber \\
+%&\triangleq \mathbf{Y^T \hat{K}_{p}} + \zeta_p 
+
+where $\hat{K}_{\alpha i}$ are the estimates of $K_{\alpha i}^*$ $i=0,1,2,3$, and $\zeta_{\alpha}$, $\gamma_{\alpha}$ are auxiliary gain used for closed-loop stabilization (cf. Remark \ref{rem_zeta}). The gains $\hat{K}_{\alpha i}$ are adapted via the following laws:
+\begin{subequations}\label{adaptive_law_alpha}
+\begin{align}
+&\dot{\hat{K}}_{\alpha ia} = ||s_{\alpha}||||\xi||^i - \nu_{\alpha ia} \hat{K}_{\alpha ia}, \dot{\hat{K}}_{\alpha i\bar{a}} = 0,  i = 0,1,2
+ \\
+&\dot{\hat{K}}_{\alpha3a} =  ||s_{\alpha}||||\ddot{\chi}|| - \nu_{\alpha3a} \hat{K}_{\alpha3a}, \dot{\hat{K}}_{\alpha3\bar{a}} = 0\\
+&\dot{\zeta}_{\alpha a} = -(1 + \hat{K}_{\alpha3a}||s_{\alpha}||||\ddot{\chi}||)\zeta_{\alpha a} + \bar{\epsilon}_{\alpha a}, \dot{\zeta}_{\alpha \bar{a}} = 0    \\ \label{zeta1}
+& \dot{\gamma}_{\alpha a} = 0,  \dot{\gamma}_{\alpha\bar{a}} = \left(1+ \frac{\varrho_{\alpha\bar{a}}}{2}\sum \limits_{i=0}^{3} {\hat{K}_{\alpha i\bar{a}}}^2 \right) \gamma_{\alpha \bar{a}} +\epsilon_{\alpha \bar{a}} \\
+& \text{with}~ \nu_{\alpha i} > \varrho_{\alpha}/2, i = 0,1,2\\
+&~\hat{K}_{\alpha i} (t_0) > 0, ~\zeta_{\alpha } (t_0)  = \bar{\zeta}_{\alpha } > \bar{\epsilon}_{\alpha }, \gamma_{\alpha } (t_0) = \bar{\gamma}_{\alpha } > \epsilon_{\alpha }
+\end{align}
+\end{subequations}
+where a and $\bar{a} \in \Omega \backslash {a}$ denote the active and inactive subsystems respectively; $\nu_{\alpha ia},\bar{\epsilon}_{\alpha a}, \epsilon_{\alpha\bar{a}}  \in\mathbb{R}^{+}$ are user-defined scalars and $\varrho_{\alpha} \triangleq \frac{\min \lbrace \lambda_{\min}(  \Lambda_{{\alpha}} ), \lambda_{\min}( \Phi_{{\alpha}} ) \rbrace}{\max \lbrace \bar{M}_{\alpha\alpha} 1 \rbrace}$ $\forall  \in \Omega$ and $t_0$ is the initial time and from \ref{} and intial condition \ref{}, it can be verified that $\exists \underline{\zeta}_{\alpha }, \underline{\gamma}_{\alpha } \in \mathbb{R}^{+}$ such that
+\begin{subequations}
+\begin{align}
+&\hat{K}_{\alpha i}(t) \geq 0, ~~ 0 < \underline{\zeta}_{\alpha } \leq \zeta_{\alpha } (t) <  \bar{\zeta}_{\alpha }, \nonumber \\
+\text{and}~~ & 0 < \underline{\gamma}_{\alpha } \leq \gamma_{\alpha } (t) <  \bar{\gamma}_{\alpha } ~~ \forall t \geq t_0.
+\end{align}
+\end{subequations}
+
+
+
+\subsubsection{Desired Dynamics selection}
+
+As mentioned earlier the most popular choice of dynamics to be imposed is the standard second order dynamics similar to a Mass-Spring-Damper system.
+
+\begin{equation} \label{Impedance_dynamics}
+\bar{M}_{\alpha\alpha}( \ddot{\alpha}(t) - \ddot{\alpha}_d(t)  ) + B_d ( \dot{\alpha}(t) - \dot{\alpha}_d(t)) + K_d ( {\alpha}(t) - {\alpha_d(t))} = {\tau}_{{\alpha}ext} - {\tau}_{{\alpha}d}  
+\end{equation}
+
+Where $\bar{M}_{\alpha\alpha}$ represents the desired Inertia matrix to be imposed; $B_d$ represents the desired damping; $K_d$ represents the desired spring constant for the system; ${r}_d$ represents the desired trajectory;${\tau}_{{\alpha}d} = J(\alpha)^{T} F_d$ where $J(\alpha)$ is the analytic jacobian matrix and ${F}_d$ represents the desired contact force.
+
+Let ${\alpha}(t) - {\alpha}_d(t) \triangleq  {e_\alpha}(t)$ and ${\tau}_{{\alpha}ext} - {\tau}_{{\alpha}d}  \triangleq  {e_{\tau}}(t)$, then equation (\ref{Impedance_dynamics}) can be rewritten as 
+
+\begin{equation}
+    \bar{M}_{\alpha\alpha} \ddot{e_\alpha}(t) + B_d \dot{e_\alpha}(t) + K_d {e_\alpha}(t) = e_{\tau}
+\end{equation}
+
+and subsequently we can write it as
+
+\begin{equation} \label{Simplified_Impedance_Dynamics}
+ \ddot{e_\alpha}(t)  + {K_1}  \dot{e_\alpha}(t) +  {K_2} {e_\alpha}(t) = {K_3} e_{\tau}   
+\end{equation}
+
+where $K_1 = {\bar{M}_{\alpha\alpha}}^{-1} B_d$; $K_2 = {\bar{M}_{\alpha\alpha}}^{-1} K_d$; and $K_3 = {\bar{M}_{\alpha\alpha}}^{-1}$. 
+
+\subsubsection{Control Problem Formulation}
+Now as the intended dynamics are defined as \ref{Simplified_Impedance_Dynamics}, we define the deviation from the intended Impedance dynamics as $\Delta I$ (\ref{deviation_error})
+
+\begin{equation} \label{deviation_error}
+   \Delta I  \triangleq \ddot{e_\alpha}(t)  + {K_1}  \dot{e_\alpha}(t) +  {K_2} {e_\alpha}(t) - {K_3} e_{\tau}
+\end{equation}
+Our control objective is to reduce the Deviation Error $\Delta I$ to zero which will in turn enforce the dynamics (\ref{Simplified_Impedance_Dynamics}) and subsequently (\ref{Impedance_dynamics}) on the system.
+\subsubsection{Sliding surface selection}
+
+Considering the force and position tracking problem we define a sliding variable $\mathbf{s}$ as
+\begin{equation} \label{s}
+    s \triangleq \dot{e_\alpha}(t) + \lambda {e_\alpha} - {g_f}(t)
+\end{equation}
+
+where $g_f$ is an unknown function.
+
+Then $\dot s$ is given as
+\begin{equation} \label{s_dot}
+    \dot s = \ddot{e_\alpha}(t) + \lambda {\dot e_\alpha} - \dot {g_f}(t)
+\end{equation}
+
+now, from (\ref{s_dot}) and (\ref{deviation_error})
+
+% \begin{subequations}
+% \begin{align}
+%     \Delta I &= \dot s - \lambda \dot{e_\alpha} + \dot{g_f}(t) + K_1 \dot{e_\alpha}(t) + K_2 e_\alpha(t) - K_3 e_{\tau} \label{eq:sub1} \\
+%     \Delta I &= \dot s - \lambda \dot{e_\alpha} + \dot{g_f}(t) + K_1 \dot{e_\alpha}(t) + K_2 e_\alpha(t) - K_3 e_{\tau} \label{eq:sub2}
+% \end{align}
+% \end{subequations}
+
+\begin{equation} \label{devsol1}
+    \Delta I = \dot s - \lambda \dot{e_\alpha} + \dot{g_f}(t) + K_1 \dot{e_\alpha}(t) + K_2 e_\alpha(t) - K_3 e_{\tau}
+\end{equation}
+
+\begin{equation}\label{devsol2}
+    \Delta I = \dot s + (K_1 - \lambda) [\dot{e_\alpha} + \frac{K_2}{(K_1 - \lambda)} e_\alpha(t)] 
+    + \dot{g_f}(t) - K_3 e_{\tau}
+\end{equation}
+
+\begin{equation} \label{devsol3}
+    \Delta I = \dot s + \alpha [\dot{e_\alpha} + \beta e_\alpha(t)] 
+    + \dot{g_f}(t) - K_3 e_{\tau}
+\end{equation}
+
+
+where $\alpha \triangleq K_1 - \lambda$ and $\beta \triangleq \frac{K_2}{(K_1 - \lambda)}$
+
+Let $\beta = \lambda$, then $\lambda$ can be solved in terms of $K_1$ and $K_2$ using the following equation  
+\begin{equation} \label{devsol4}
+    \lambda(K_1 - \lambda) = K_2
+\end{equation}
+So, equation (\ref{devsol3}) becomes
+
+\begin{equation} \label{devsol5}
+    \Delta I = \dot s + \alpha [\dot{e_\alpha} + \lambda e_\alpha(t)] 
+    + \dot{g_f}(t) - K_3 e_{\tau}
+\end{equation}
+
+using (\ref{devsol5}) and (\ref{s})
+
+\begin{equation} 
+    \Delta I = \dot s + \alpha [s + g_f(t)] 
+    + \dot{g_f}(t) - K_3 e_{\tau}
+\end{equation}
+rearranging the terms,
+\begin{equation} \label{devsol6}
+    \Delta I = \dot s + \alpha s +\dot{g_f}(t) + \alpha g_f(t) - K_3 e_{\tau}
+\end{equation}
+
+let $g_f$ satisfy the equation
+\begin{equation} \label{gf_dyn}
+    \dot{g_f}(t) + \alpha g_f(t) - K_3 e_{\tau} = 0
+\end{equation}
+taking the Laplace transform we can see that
+
+\begin{equation}
+    G_f(\boldsymbol{S}) = \frac{K_3 e_{\tau}(\boldsymbol{S})}{\boldsymbol{S} + \alpha}
+\end{equation}
+where $\boldsymbol{S}$ is the Laplace Variable.
+This is the standard structure of a Low-Pass filter, and we can define $g_f(t)$ to be a Low-Pass filtered force error signal and consider it as known if $e_{\tau}$ is known.
+
+Hence, the sliding variable $s$ is now fully known.
+
+Now, from (\ref{devsol6}) and (\ref{devsol7}) 
+\begin{equation} \label{deviation_error2}
+    \Delta I = \dot s + \alpha s
+\end{equation}
+
+\textit{Sub-Control Problem:} Now, if we can force $s$ and $\dot s$ to go to zero using any control strategy then we can ensure that the deviation error $\Delta I$  goes to zero, enforcing the desired impedance dynamics (\ref{Simplified_Impedance_Dynamics}) on the system.
+
+\subsubsection{Controller Derivation and Adaptation}
+
+For control design purpose, the UAM manipulator sub-dynamics (\ref{dynamics}c) is rearranged as
+\begin{equation} \label{dynamics_alpha}
+\bar{M}_{\alpha\alpha}\ddot{\alpha} + E_{\alpha} = \tau_{\alpha}   + \tau_{\alpha{ext}}    
+\end{equation}
+where $\bar{M}_{\alpha\alpha}$ is a user-defined constant positive definite matrix and  
+\begin{equation} \label{Ealpha}
+    E_\alpha \triangleq (M_{\alpha\alpha} - \bar{M}_{\alpha\alpha})\ddot{\alpha} +  M_{p\alpha}^T\ddot{p} + M_{q\alpha}^T\ddot{q} + C_\alpha\dot{\chi} + g_\alpha + d_\alpha 
+\end{equation}
+ 
+
+The selection of $\bar{M}_{\alpha \alpha}$ would be discussed later (cf. Remark \ref{mass}).
+
+% \begin{itemize}
+%     \item $M(q)$ is a positive definite matrix such that  $0 < \underline{m} I< M(q) < \overline{m} I$
+%     \item  $M(q)$ and $C(q, \dot q)$ follow the property that $\dot M(t) - 2 C(t)$ is a skew-symmetric matrix. 
+%     \item g(
+% \end{itemize}
+
+Now, from(\ref{s_dot}) 
+
+\begin{equation}\label{controller_der_eq1}
+    \dot{s}_\alpha = \ddot{\alpha}(t) - \ddot{\alpha_d}(t) + \lambda {\dot e_\alpha} - \dot {g_f}(t)
+\end{equation}
+Multiplying with $\bar{M}_{\alpha \alpha}$ on both we get
+
+\begin{equation}\label{controller_der_eq2}
+    \bar{M}_{\alpha\alpha} \dot s_\alpha = {\bar{M}}_{\alpha\alpha} \ddot{\alpha}(t) - \bar{M}_{\alpha\alpha} [\ddot{\alpha}_d - \lambda {\dot {e_\alpha}} + \dot {g_f}]
+\end{equation}
+
+Then from equation (\ref{dynamics_alpha}) we know,
+
+\begin{equation} \label{}
+\bar{M}_{\alpha\alpha}\ddot{{\alpha}} = - E_{\alpha} + \tau_{\alpha}   + \tau_{\alpha{ext}}       
+\end{equation}
+
+Combining this with (\ref{controller_der_eq2})
+
+\begin{equation}
+% \label{controller_der_eq2}
+    \bar{M}_{\alpha\alpha} \dot s_\alpha = - E_{\alpha} + \tau_{\alpha}   + \tau_{\alpha{ext}}  - \bar{M}_{\alpha \alpha} [\ddot{\alpha_d} - \lambda {\dot e_\alpha} + \dot {g_f}]
+\end{equation} 
+Substituting $\dot{g_f}$ from (\ref{gf_dyn}) into (\ref{controller_der_eq2}) we get
+
+\begin{equation}
+% \label{controller_der_eq2}
+    \bar{M}_{\alpha\alpha} \dot s_\alpha = - E_{\alpha} + \tau_{\alpha}   + \tau_{\alpha{ext}}  - \bar{M}_{\alpha \alpha} [\ddot{\alpha_d} - \lambda {\dot e_\alpha} - \alpha g_f(t) + K_3 e_{\tau}]
+\end{equation} 
+
+
+The control law is proposed as
+\begin{subequations}\label{ct3}
+\begin{align}
+\tau_{\alpha} &= -\Lambda_{\alpha} s_\alpha + \Delta \tau_{\alpha} - \tau_{\alpha{ext}} + \bar{M}_{\alpha \alpha} [\ddot{\alpha_d} - \lambda {\dot e_\alpha} - \alpha g_f(t) + K_3 e_{\tau}],  \label{tau_alpha}\\
+\Delta \tau_{\alpha} &= \begin{cases}
+    \rho_{\alpha} \frac{s_{\alpha}}{||s_{\alpha}||}       & ~ \text{if } || s_{\alpha}|| \geq \varpi_\alpha\\
+    \label{del_alpha}
+    \rho_{\alpha} \frac{s_{\alpha}}{\varpi_\alpha}       & ~ \text{if } || s_{\alpha}|| < \varpi_\alpha\\
+    \end{cases}
+\end{align}
+\end{subequations}
+where $\Lambda_{\alpha}$ is a user-defined positive definite gain matrix and $\varpi_{\alpha} > 0$ is a scalar used to avoid chattering; $\rho_{\alpha}$ tackles system uncertainties, whose design will be discussed later.
+
+ 
+Using Property 2 and the relation (\ref{split_2}) we have $||C_{\alpha}|| \leq ||C|| \leq \bar{c}||\dot{\chi}||$, $||g_{\alpha}|| \leq ||g|| \leq \bar{g}$ and $||d_{\alpha}|| \leq ||d|| \leq \bar{d}$. Using these relations, the inequalities $||\ddot{\chi}|| \geq ||\ddot{p}||$, $||\ddot{\chi}|| \geq ||\ddot{q}||$ and $||\ddot{\chi}|| \geq ||\ddot{\alpha}||$, $||\xi|| \geq ||\dot{e}||$, $||\xi|| \geq ||{e}||$ and substituting $\dot{\chi} = \dot{e} + \dot{\chi}_d$ into (\ref{Ealpha}) yields the upper bound structure for $E_\alpha$ as
+\begin{align} 
+||E_{\alpha}|| &\leq K_{\alpha0}^*  +K_{\alpha1}^*||\xi||+ K_{\alpha2}^*||\xi||^2 + K_{\alpha3}^*||\ddot{\chi}||\label{up_bound_alpha} 
+%&\triangleq \mathbf{Y}^T \mathbf{K_{p}^*}
+\end{align}
+
+\begin{align*}
+ K_{\alpha0}^* &= \bar{g} + \bar{d} + \bar{c}||\dot{\chi}_d||^2,\\
+K_{\alpha1}^* &= 2\bar{c}|| \dot{\chi}_d||,~
+K_{\alpha2}^* = \bar{c}, \\
+K_{\alpha3}^* &=  (||(M_{\alpha\alpha} - \bar{M}_{\alpha\alpha} )||+ ||M^T_{p\alpha}|| + ||M^T_{q\alpha}||)
+\end{align*}
+are unknown scalars. 
+Based on the upper bound structure in (\ref{up_bound_alpha}), the gain $\rho_{\alpha}$ in (\ref{del_alpha}) is designed as
+\begin{align}
+\rho_{\alpha} = \hat{K}_{\alpha0} + \hat{K}_{\alpha1}||\xi|| + \hat{K}_{\alpha2}||\xi||^2 + \hat{K}_{\alpha3}||\ddot{\chi}|| + \zeta_{\alpha} + \gamma_{\alpha} \label{rho_alpha} 
+\end{align}
+%\nonumber \\
+%&\triangleq \mathbf{Y^T \hat{K}_{p}} + \zeta_p 
+
+where $\hat{K}_{\alpha i}$ are the estimates of $K_{\alpha i}^*$ $i=0,1,2,3$, and $\zeta_{\alpha}$, $\gamma_{\alpha}$ are auxiliary gain used for closed-loop stabilization (cf. Remark \ref{rem_zeta}). The gains $\hat{K}_{\alpha i}$ are adapted via the following laws:
+\begin{subequations}\label{adaptive_law_alpha}
+\begin{align}
+&\dot{\hat{K}}_{\alpha ia} = ||s_{\alpha}||||\xi||^i - \nu_{\alpha ia} \hat{K}_{\alpha ia}, \dot{\hat{K}}_{\alpha i\bar{a}} = 0,  i = 0,1,2
+ \\
+&\dot{\hat{K}}_{\alpha3a} =  ||s_{\alpha}||||\ddot{\chi}|| - \nu_{\alpha3a} \hat{K}_{\alpha3a}, \dot{\hat{K}}_{\alpha3\bar{a}} = 0\\
+&\dot{\zeta}_{\alpha a} = -(1 + \hat{K}_{\alpha3a}||s_{\alpha}||||\ddot{\chi}||)\zeta_{\alpha a} + \bar{\epsilon}_{\alpha a}, \dot{\zeta}_{\alpha \bar{a}} = 0    \\ \label{zeta1}
+& \dot{\gamma}_{\alpha a} = 0,  \dot{\gamma}_{\alpha\bar{a}} = \left(1+ \frac{\varrho_{\alpha\bar{a}}}{2}\sum \limits_{i=0}^{3} {\hat{K}_{\alpha i\bar{a}}}^2 \right) \gamma_{\alpha \bar{a}} +\epsilon_{\alpha \bar{a}} \\
+& \text{with}~ \nu_{\alpha i} > \varrho_{\alpha}/2, i = 0,1,2\\
+&~\hat{K}_{\alpha i} (t_0) > 0, ~\zeta_{\alpha } (t_0)  = \bar{\zeta}_{\alpha } > \bar{\epsilon}_{\alpha }, \gamma_{\alpha } (t_0) = \bar{\gamma}_{\alpha } > \epsilon_{\alpha }
+\end{align}
+\end{subequations}
+where a and $\bar{a} \in \Omega \backslash {a}$ denote the active and inactive subsystems respectively; $\nu_{\alpha ia},\bar{\epsilon}_{\alpha a}, \epsilon_{\alpha\bar{a}}  \in\mathbb{R}^{+}$ are user-defined scalars and $\varrho_{\alpha} \triangleq \frac{\min \lbrace \lambda_{\min}(  \Lambda_{{\alpha}} ), \lambda_{\min}( \Phi_{{\alpha}} ) \rbrace}{\max \lbrace \bar{M}_{\alpha\alpha} 1 \rbrace}$ $\forall  \in \Omega$ and $t_0$ is the initial time and from \ref{} and intial condition \ref{}, it can be verified that $\exists \underline{\zeta}_{\alpha }, \underline{\gamma}_{\alpha } \in \mathbb{R}^{+}$ such that
+\begin{subequations}
+\begin{align}
+&\hat{K}_{\alpha i}(t) \geq 0, ~~ 0 < \underline{\zeta}_{\alpha } \leq \zeta_{\alpha } (t) <  \bar{\zeta}_{\alpha }, \nonumber \\
+\text{and}~~ & 0 < \underline{\gamma}_{\alpha } \leq \gamma_{\alpha } (t) <  \bar{\gamma}_{\alpha } ~~ \forall t \geq t_0.
+\end{align}
+\end{subequations}
+
+
+% \bibliographystyle{IEEEtran}
+% \bibliography{root}
+
+
+\end{document}
+
+\nomenclature{\(b_r\)}{Width of right side module}
+
